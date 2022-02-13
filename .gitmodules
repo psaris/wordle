@@ -1,0 +1,3 @@
+[submodule "mm"]
+	path = mm
+	url = git@github.com:psaris/mm.git
