@@ -31,7 +31,7 @@ show .mm.summary each .mm.game[a;C;G;g] rand C
 
 a:.mm.best[f]
 CG:(C;G)
-a . CG:(.mm.filt . CG)["ROATE";"Y YY "]
-a . CG:(.mm.filt . CG)["STRAP";" YYY "]
-a . CG:(.mm.filt . CG)["ADMIT";"Y   Y"]
-a . CG:(.mm.filt . CG)["ULTRA";"GGGGG"]
+a . CG:.mm.filt . CG,("ROATE";"Y YY ")
+a . CG:.mm.filt . CG,("STRAP";" YYY ")
+a . CG:.mm.filt . CG,("ADMIT";"Y   Y")
+a . CG:.mm.filt . CG,("ULTRA";"GGGGG")
