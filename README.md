@@ -144,8 +144,8 @@ q).mm.summary each .mm.game[a;C;G;g] rand C
 n    guess   score  
 --------------------
 2309 "SOARE" "  G G"
-28   "DELTA" " G  Y"
-3    "FINCH" "   G "
+28   "GLITZ" "     "
+8    "HEAVE" " GG G"
 1    "PEACE" "GGGGG"
 ```
 
@@ -158,21 +158,24 @@ q).mm.summary each .mm.game[a;C;G;g] rand C
 n    guess   score  
 --------------------
 2309 "SOARE" "  YY "
-guess (HINT RABID): RABID
+guess (HINT GLITZ): GLITZ
+GLITZ
 n  guess   score  
 ------------------
-42 "RABID" "YG GY"
-guess (HINT DARIC): DARIC
+28 "GLITZ" "     "
+guess (HINT HEAVE): HEAVE
+HEAVE
 n guess   score  
 -----------------
-1 "DARIC" "YGYG "
-guess (HINT NADIR): NADIR
+8 "HEAVE" " GG G"
+guess (HINT PEACE): PEACE
+PEACE
 n    guess   score  
 --------------------
-2309 "SOARE" "  YY "
-42   "RABID" "YG GY"
-1    "DARIC" "YGYG "
-1    "NADIR" "GGGGG"
+2309 "SOARE" "  G G"
+28   "GLITZ" "     "
+8    "HEAVE" " GG G"
+1    "PEACE" "GGGGG"
 ```
 
 Note that you can choose among any of the following functions to pick

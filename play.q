@@ -7,9 +7,9 @@
 \l wordle.q
 
 -1 "load all possible codes (answers),";
-C:asc upper read0 `:answers.txt   / possible 'codes'
+C:`u#asc upper read0 `:answers.txt   / possible 'codes'
 -1 "and finally all valid guesses.";
-G:asc C,upper read0 `:guesses.txt / possible 'guesses'
+G:`u#asc C,upper read0 `:guesses.txt / possible 'guesses'
 
 -1 "by generating a frequency distribution of scores,";
 -1"we can determine an optimal first word.";
@@ -27,6 +27,15 @@ a:.mm.stdin .mm.onestep f
 show .mm.summary each .mm.game[a;C;G;g] rand C
 
 \
+
+/.mm.score:C!G!/:C .mm.scr/:\: G
+/ generate histogram of each guess-choosing function
+.mm.hist (count .mm.game[.mm.onestep[`.mm.minimax];C;G;"ARISE"]::) peach C
+.mm.hist (count .mm.game[.mm.onestep[`.mm.irving];C;G;"ROATE"]::) peach C
+.mm.hist (count .mm.game[.mm.onestep[`.mm.maxent];C;G;"SOARE"]::) peach C
+.mm.hist (count .mm.game[.mm.onestep[`.mm.maxparts];C;G;"TRACE"]::) peach C
+.mm.hist (count .mm.game[.mm.onestep[`.mm.maxgini];C;G;"ROATE"]::) peach C
+
 / playing wordle against an unknown word (and receiving hints along the way)
 
 a:.mm.best[f]
