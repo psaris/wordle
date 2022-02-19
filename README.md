@@ -14,7 +14,7 @@ computationally heavy search for optimal guesses run in parallel.
 
 `q play.q -s 4`
 
-## The game
+## Wordle
 
 Just like mastermind, the goal of wordle is to discover the hidden
 word (or 'code' in mastermind parlance) in the least number of
@@ -36,7 +36,7 @@ different for each person.
 
 [main]:https://www.nytimes.com/games/wordle/main.7785bdf7.js
 
-## Optimal starting word
+## Optimal Starting Word
 
 Every step of the game solves the same problem: how can I reveal as
 much *information* about the solution as possible. Intuitively,
@@ -58,14 +58,14 @@ Concretely, the following responses are not possible:
 "GGGGY"
 ```
 
-A good guess would have all remaining responses be distributed as
-evenly as possible among the possible responses. If we could achieve
-this perfect distribution, the first guess would narrow the total
-universe of possible solutions from 2309 to 10 (`2309 % 238`) on the
-first guess. How can we find this magic word? There are many
-algorithms to chose from. One way is to choose the word that minimizes
-the maximum size of each possible response set. This method was
-introduced by Donald Knuth to solve the mastermind game (see
+A good guess would have all remaining responses distributed as evenly
+as possible among the possible responses. If we could achieve this
+perfect distribution, the first guess would narrow the total universe
+of possible solutions from 2309 to 10 (`2309 % 238`) on the first
+guess. How can we find this magic word? There are many algorithms to
+chose from. One way is to choose the word that minimizes the maximum
+size of each possible response set. This method was introduced by
+Donald Knuth to solve the mastermind game (see
 [.mm.minimax][minimax]). Another way is to choose the word that
 minimizes the average response set size (see
 [.mm.irving][irving]). There is, in fact, an information-theoretic
@@ -88,7 +88,7 @@ q)\l mm/mm.q
 q)\l wordle.q
 q)C:asc upper read0 `:answers.txt
 q)G:asc C,upper read0 `:guesses.txt
-q)show T:.mm.freqt[C;G]
+q)show T:.mm.freqt[G;C]
 score  | AAHED AALII AARGH AARTI ABACA ABACI ABACK ABACS ABAFT ABAKA ABAMP ABAND ABASE ABASH ABAS..
 -------| ----------------------------------------------------------------------------------------..
 "     "| 448   667   587   378   993   624   925   668   772   1134  896   753   422   702   805 ..
@@ -122,13 +122,19 @@ REAST| 4.067206
 RAILE| 4.065415
 ```
 
-## Interactive Play
+This is the optimal starting word for the maximum entropy algorithm.
+As we will see [below](#Best-Algorithm), each algorithm has its own
+best starting word.
+
+## Playing a Game
 
 One game per day can be played on the official wordle
 [site][wordle]. But with our implementation, we can play as many times
 as we want.
 
 [wordle]:https://www.nytimes.com/games/wordle/index.html
+
+### Computer-Driven
 
 After loading the library and word list, we can define our first guess
 `g`, algorithm `a` and let the algorithm play a random game.
@@ -149,6 +155,7 @@ n    guess   score
 1    "PEACE" "GGGGG"
 ```
 
+# Interactive
 Alternatively, we can change the algorithm to prompt us for our own
 solution (while hinting at the optimal guess).
 
@@ -178,10 +185,97 @@ n    guess   score
 1    "PEACE" "GGGGG"
 ```
 
-Note that you can choose among any of the following functions to pick
-the best guess:
+## Best Algorithm
+
+There are many algorithms to finding the best word at each step.  The
+following are included in the Mastermind library.
 - `.mm.minimax`
 - `.mm.irving`
 - `.mm.maxent`
 - `.mm.maxgini`
 - `.mm.maxparts`
+
+
+### Caching
+
+Each algorithm has different performance characteristics.  In order to
+measure the distribution and average number of guess required to win,
+we will apply the algorithm across all possible codes.  To make this
+process more efficient, we first cache the scoring function by
+converting it into a nested dictionary.
+
+```q
+.mm.score:.mm.scr/:[;C!C] peach G!G
+```
+
+### Best First Guess
+
+We can now use the `.mm.best` function to scan all possible options
+for the best first algorithm-dependent code.  The first code for
+`.mm.minimax`, for example is "ARISE".
+
+```q
+q).mm.best[`.mm.minimax;G;C]
+"ARISE"
+```
+
+### Minimum Maximum Size
+
+Running through all games,`.mm.mimimax.` can get the correct answer in
+one shot (because it starts with a word from the code list).  The
+downside is that it may take up to 6 attempts -- with an average of
+3.575574 attempts.
+
+```q
+q).mm.hist (count .mm.game[.mm.onestep[`.mm.minimax];G;C;"ARISE"]::) peach C
+1| 1
+2| 53
+3| 982
+4| 1164
+5| 107
+6| 2
+```
+
+### Minimum Expected Size
+
+Using `.mm.irving` (minimum expected size) starts with a non-viable
+code, but guarantees a solution in 5 attempts and an even better
+average of 3.48246 attempts.
+
+```q
+q).mm.hist (count .mm.game[.mm.onestep[`.mm.irving];G;C;"ROATE"]::) peach C
+2| 55
+3| 1124
+4| 1091
+5| 39
+```
+
+### Maximum Entropy
+
+The information theoretic maximum entropy `.mm.maxent` can't get the
+answer in one attempt and even has a worst-case scenario of 6
+attempts. But it wins with an average 3.467302 attempts -- beating the
+previous two cases.
+
+```q
+q).mm.hist (count .mm.game[.mm.onestep[`.mm.maxent];G;C;"SOARE"]::) peach C
+2| 45
+3| 1206
+4| 993
+5| 64
+6| 1
+```
+
+### Maximum Number of Part
+Finally, we try the `.mm.maxparts` algorithm and see that it has the
+best average seen so far: 3.433088.
+
+```q
+q).mm.hist (count .mm.game[.mm.onestep[`.mm.maxparts];G;C;"TRACE"]::) peach C
+1| 1
+2| 75
+3| 1228
+4| 935
+5| 68
+6| 2
+```
