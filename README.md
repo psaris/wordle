@@ -140,7 +140,7 @@ q)C:asc upper read0 `:answers.txt
 q)G:asc C,upper read0 `:guesses.txt
 q)g:"SOARE"
 q)a:.mm.onestep `.mm.maxent
-q).mm.summary each .mm.game[a;C;G;g] rand C
+q).mm.summary each .mm.game[a;G;C;g] rand C
 n    guess   score  
 --------------------
 2309 "SOARE" "  G G"
@@ -154,7 +154,7 @@ solution (while hinting at the optimal guess).
 
 ```q
 q)a:.mm.stdin .mm.onestep `.mm.maxent
-q).mm.summary each .mm.game[a;C;G;g] rand C
+q).mm.summary each .mm.game[a;G;C;g] rand C
 n    guess   score  
 --------------------
 2309 "SOARE" "  YY "
