@@ -1,6 +1,6 @@
-# A Q Implementation of Wordle (as a Mastermind Special Case)
+# A Q Implementation of Wordle (as a Mastermind Extension)
 
-Clone this project and initialize the mastermind submodule
+Clone this project and initialize the mm submodule
 
 ```
 $ git clone git@github.com:psaris/wordle.git
@@ -10,15 +10,15 @@ $ git submodule update --init --recursive
 Start q with the following command to see how an optimal initial word
 is chosen as well as an example of playing the game interactively.
 Running with multiple secondary threads `-s 4` allows the
-computationally heavy search for optimal guesses run in parallel.
+computationally-heavy search for optimal guesses to run in parallel.
 
 `q play.q -s 4`
 
 ## Wordle
 
-Just like mastermind, the goal of wordle is to discover the hidden
-word (or 'code' in mastermind parlance) in the least number of
-guesses. At each step of mastermind you are told how many pegs are
+Similar to Mastermind, the goal of Wordle is to discover the hidden
+word (or 'code' in Mastermind parlance) in the least number of
+guesses. At each step of Mastermind you are told how many pegs are
 placed in the correct space and how many are the correct color, but
 placed in the wrong space. Wordle adds a slight twist to the scoring
 function. Instead, the game tells you the *actual* letters that are in
@@ -26,13 +26,13 @@ the correct place and the *actual* letters that are in the wrong
 place. This reveals much more information and drastically simplifies
 the search process.
 
-Another difference between mastermind and wordle is that while every
-possible mastermind guess can be the actual solution, wordle allows
+Another difference between Mastermind and Wordle is that while every
+possible Mastermind guess can be the actual solution, Wordle allows
 you to guess words that are not in the solution space. How do I know?
 The game solutions and all valid guesses are loaded by the web page
 and are available by inspecting the page source and clicking on the
-[main.7785bdf7.js][main] link (where the `7785bdf7` hash may be
-different for each person.
+[main.7785bdf7.js][main] link (where the `7785bdf7` hash may change in
+the future.
 
 [main]:https://www.nytimes.com/games/wordle/main.7785bdf7.js
 
@@ -58,36 +58,32 @@ Concretely, the following responses are not possible:
 "GGGGY"
 ```
 
-A good guess would have all remaining responses distributed as evenly
-as possible among the possible responses. If we could achieve this
+A good guess would have all remaining codes distributed as evenly as
+possible among the possible responses. If we could achieve this
 perfect distribution, the first guess would narrow the total universe
-of possible solutions from 2309 to 10 (`2309 % 238`) on the first
+of remaining codes from 2309 to 10 (`2309 % 238`) on the first
 guess. How can we find this magic word? There are many algorithms to
 chose from. One way is to choose the word that minimizes the maximum
-size of each possible response set. This method was introduced by
-Donald Knuth to solve the mastermind game (see
-[.mm.minimax][minimax]). Another way is to choose the word that
-minimizes the average response set size (see
-[.mm.irving][irving]). There is, in fact, an information-theoretic
+size of each possible response set (`.mm.minimax`). This method was
+introduced by Donald Knuth to solve the Mastermind game. Another way
+is to choose the word that minimizes the average response set size
+(`.mm.irving`). There is, in fact, an information-theoretic
 calculation that measures how unevenly (or randomly) values are
 distributed: *entropy*. When all responses to our guess are the same,
-the entropy is 0. When all responses are evenly distributed entropy is
-maximized. So which word maximizes the response entropy?
+the entropy is 0. When all responses are evenly distributed, entropy
+is maximized. So which word maximizes the response entropy?
 
-[minimax]:https://github.com/psaris/mm/blob/6f647a2d6835638ede14cd948882ffba6930058c/mm.q#L31
-[irving]:https://github.com/psaris/mm/blob/6f647a2d6835638ede14cd948882ffba6930058c/mm.q#L32
-
-First we load the mastermind library `mm/mm.q` and overwrite the
-scoring function by loading `wordle.q`.  Then we load all possible
-solutions (`answers.txt`) and valid guesses (`guesses.txt`). Finally,
-we call the `.mm.freqt` function to generate the frequency table of
-all possible first guesses.
+First we load the mm library `mm/mm.q` and overwrite the scoring
+function by loading `wordle.q`.  Then we load all possible solutions
+(`answers.txt`) and valid guesses (`guesses.txt`). Finally, we call
+the `.mm.freqt` function to generate the frequency table of all
+possible first guesses.
 
 ```q
 q)\l mm/mm.q
 q)\l wordle.q
-q)C:asc upper read0 `:answers.txt
-q)G:asc C,upper read0 `:guesses.txt
+q)C:`u#asc upper read0 `:answers.txt
+q)G:`u#asc C,upper read0 `:guesses.txt
 q)show T:.mm.freqt[G;C]
 score  | AAHED AALII AARGH AARTI ABACA ABACI ABACK ABACS ABAFT ABAKA ABAMP ABAND ABASE ABASH ABAS..
 -------| ----------------------------------------------------------------------------------------..
@@ -128,7 +124,7 @@ best starting word.
 
 ## Playing a Game
 
-One game per day can be played on the official wordle
+One game per day can be played on the official Wordle
 [site][wordle]. But with our implementation, we can play as many times
 as we want.
 
@@ -157,7 +153,7 @@ n    guess   score
 
 # Interactive
 Alternatively, we can change the algorithm to prompt us for our own
-solution (while hinting at the optimal guess).
+guess (while hinting at the algorithm's suggestion).
 
 ```q
 q)a:.mm.stdin .mm.onestep `.mm.maxent
@@ -188,7 +184,7 @@ n    guess   score
 ## Best Algorithm
 
 There are many algorithms to finding the best word at each step.  The
-following are included in the Mastermind library.
+following are included in the `mm` library.
 - `.mm.minimax`
 - `.mm.irving`
 - `.mm.maxent`
@@ -212,7 +208,7 @@ converting it into a nested dictionary.
 
 We can now use the `.mm.best` function to scan all possible options
 for the best first algorithm-dependent code.  The first code for
-`.mm.minimax`, for example is "ARISE".
+`.mm.minimax`, for example, is "ARISE".
 
 ```q
 q).mm.best[`.mm.minimax;G;C]
@@ -221,7 +217,7 @@ q).mm.best[`.mm.minimax;G;C]
 
 ### Minimum Maximum Size
 
-Running through all games,`.mm.mimimax.` can get the correct answer in
+Running through all games,`.mm.mimimax` can get the correct answer in
 one shot (because it starts with a word from the code list).  The
 downside is that it may take up to 6 attempts -- with an average of
 3.575574 attempts.
@@ -238,9 +234,9 @@ q).mm.hist (count .mm.game[.mm.onestep[`.mm.minimax];G;C;"ARISE"]::) peach C
 
 ### Minimum Expected Size
 
-Using `.mm.irving` (minimum expected size) starts with a non-viable
-code, but guarantees a solution in 5 attempts and an even better
-average of 3.48246 attempts.
+The `.mm.irving` (minimum expected size) algorithm starts with a
+non-viable code, but guarantees a solution in 5 attempts and an even
+better average of 3.48246 attempts.
 
 ```q
 q).mm.hist (count .mm.game[.mm.onestep[`.mm.irving];G;C;"ROATE"]::) peach C
@@ -253,9 +249,9 @@ q).mm.hist (count .mm.game[.mm.onestep[`.mm.irving];G;C;"ROATE"]::) peach C
 ### Maximum Entropy
 
 The information theoretic maximum entropy `.mm.maxent` can't get the
-answer in one attempt and even has a worst-case scenario of 6
-attempts. But it wins with an average 3.467302 attempts -- beating the
-previous two cases.
+answer in one attempt and has a worst-case scenario of 6 attempts. But
+it wins with an average 3.467302 attempts -- beating the previous two
+cases.
 
 ```q
 q).mm.hist (count .mm.game[.mm.onestep[`.mm.maxent];G;C;"SOARE"]::) peach C
@@ -266,8 +262,8 @@ q).mm.hist (count .mm.game[.mm.onestep[`.mm.maxent];G;C;"SOARE"]::) peach C
 6| 1
 ```
 
-### Maximum Number of Part
-Finally, we try the `.mm.maxparts` algorithm and see that it has the
+### Maximum Number of Parts
+Finally, we try the `.mm.maxparts` algorithm and observe that it has the
 best average seen so far: 3.433088.
 
 ```q
