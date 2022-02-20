@@ -223,13 +223,15 @@ downside is that it may take up to 6 attempts -- with an average of
 3.575574 attempts.
 
 ```q
-q).mm.hist (count .mm.game[.mm.onestep[`.mm.minimax];G;C;"ARISE"]::) peach C
+q)show h:.mm.hist (count .mm.game[.mm.onestep[`.mm.minimax];G;C;"ARISE"]::) peach C
 1| 1
 2| 53
 3| 982
 4| 1164
 5| 107
 6| 2
+q)value[h] wavg key h
+3.575574
 ```
 
 ### Minimum Expected Size
@@ -239,11 +241,13 @@ non-viable code, but guarantees a solution in 5 attempts and an even
 better average of 3.48246 attempts.
 
 ```q
-q).mm.hist (count .mm.game[.mm.onestep[`.mm.irving];G;C;"ROATE"]::) peach C
+q)show :.mm.hist (count .mm.game[.mm.onestep[`.mm.irving];G;C;"ROATE"]::) peach C
 2| 55
 3| 1124
 4| 1091
 5| 39
+q)value[h] wavg key h
+3.48246
 ```
 
 ### Maximum Entropy
@@ -254,12 +258,14 @@ it wins with an average 3.467302 attempts -- beating the previous two
 cases.
 
 ```q
-q).mm.hist (count .mm.game[.mm.onestep[`.mm.maxent];G;C;"SOARE"]::) peach C
+q)show h:.mm.hist (count .mm.game[.mm.onestep[`.mm.maxent];G;C;"SOARE"]::) peach C
 2| 45
 3| 1206
 4| 993
 5| 64
 6| 1
+q)value[h] wavg key h
+3.467302
 ```
 
 ### Maximum Number of Parts
@@ -267,11 +273,13 @@ Finally, we try the `.mm.maxparts` algorithm and observe that it has the
 best average seen so far: 3.433088.
 
 ```q
-q).mm.hist (count .mm.game[.mm.onestep[`.mm.maxparts];G;C;"TRACE"]::) peach C
+q)show h:.mm.hist (count .mm.game[.mm.onestep[`.mm.maxparts];G;C;"TRACE"]::) peach C
 1| 1
 2| 75
 3| 1228
 4| 935
 5| 68
 6| 2
+q)value[h] wavg key h
+3.433088
 ```
