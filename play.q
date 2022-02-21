@@ -3,8 +3,8 @@
 \l mm/mm.q
 
 -1 "then we redefine the scoring function,";
-
 \l wordle.q
+.mm.score:.mm.veca .wordle.scr
 
 -1 "load all possible codes (answers),";
 C:`u#asc upper read0 `:answers.txt   / possible 'codes'
@@ -21,8 +21,15 @@ show S:desc .mm.entropy each flip value T
 -1 "by using the .mm.game function, we can play wordle against a random word";
 -1 "we'll start the game off with the optimal word found above";
 
-g:string first key S
+g:0N!string first key S
 f:`.mm.maxent
+a:.mm.onestep f
+show .mm.summary each .mm.game[a;G;C;g] rand C
+
+-1 "redefine the guess filtering function for hard mode";
+.mm.filtG:.wordle.filtG
+
+-1 "and allow you to play a game yourself (with hints)";
 a:.mm.stdin .mm.onestep f
 show .mm.summary each .mm.game[a;G;C;g] rand C
 
