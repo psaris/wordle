@@ -2,7 +2,7 @@
 
 Clone this project and initialize the mm submodule
 
-```
+```sh
 $ git clone git@github.com:psaris/wordle.git
 $ git submodule update --init --recursive
 ```
@@ -73,15 +73,22 @@ distributed: *entropy*. When all responses to our guess are the same,
 the entropy is 0. When all responses are evenly distributed, entropy
 is maximized. So which word maximizes the response entropy?
 
-First we load the mm library `mm/mm.q` and overwrite the scoring
-function by loading `wordle.q`.  Then we load all possible solutions
-(`answers.txt`) and valid guesses (`guesses.txt`). Finally, we call
-the `.mm.freqt` function to generate the frequency table of all
-possible first guesses.
+First we load the mm and wordle libraries `mm/mm.q` and `wordle.q` and
+replace the `.mm.score` function with a vectorized version of the
+wordle scoring function `.wordle.scr`.
 
 ```q
 q)\l mm/mm.q
 q)\l wordle.q
+.mm.score:.mm.veca .wordle.scr
+```
+
+Then we load all possible solutions from `answers.txt` and valid
+guesses from `guesses.txt`. And finally, we call the `.mm.freqt`
+function to generate the frequency table of all possible first
+guesses.
+
+```q
 q)C:`u#asc upper read0 `:answers.txt
 q)G:`u#asc C,upper read0 `:guesses.txt
 q)show T:.mm.freqt[G;C]
@@ -105,7 +112,7 @@ score  | AAHED AALII AARGH AARTI ABACA ABACI ABACK ABACS ABAFT ABAKA ABAMP ABAND
 ..
 ```
 
-Now we can demonstrate which words have the maximum entropy, thus
+We can now demonstrate which words have the maximum entropy, thus
 revealing the most information and maximizing our chance of shrinking
 the set of remaining valid solutions.
 
@@ -151,7 +158,7 @@ n    guess   score
 1    "PEACE" "GGGGG"
 ```
 
-# Interactive
+### Interactive
 Alternatively, we can change the algorithm to prompt us for our own
 guess (while hinting at the algorithm's suggestion).
 
@@ -241,7 +248,7 @@ non-viable code, but guarantees a solution in 5 attempts and an even
 better average of 3.48246 attempts.
 
 ```q
-q)show :.mm.hist (count .mm.game[.mm.onestep[`.mm.irving];G;C;"ROATE"]::) peach C
+q)show h:.mm.hist (count .mm.game[.mm.onestep[`.mm.irving];G;C;"ROATE"]::) peach C
 2| 55
 3| 1124
 4| 1091
@@ -282,4 +289,59 @@ q)show h:.mm.hist (count .mm.game[.mm.onestep[`.mm.maxparts];G;C;"TRACE"]::) pea
 6| 2
 q)value[h] wavg key h
 3.433088
+```
+
+## Hard Mode
+
+Reviewing the interactive play from [above](#Interactive) shows the
+first three guesses have very few letters in common.  This very
+efficiently narrowed the remaining options such that the fourth guess
+could only have been a single word. First-time players of Wordle,
+however, typically continue to use letters revealed to be correct.
+This is intuitive but sub-optimal -- at least in the first few
+guesses.
+
+Wordle allows users to enable 'hard mode', which forces players to use
+this sub-optimal approach of using the letters that have been revealed
+to be correct.  Specifically, any letter marked green must be used
+again in exactly the same place and any letter marked yellow must be
+used again but not necessarily in the same place.  Hard mode limits
+the allowed guesses, thus slowing the information-gathering process
+and increasing the average number of guesses required to find the
+code.
+
+To enable 'hard mode', we can redefine the `.mm.filtG` function with
+the Wordle variant `.wordle.filtG`.
+
+```q
+.mm.filtG:.wordle.filtG
+```
+
+Replaying the above game, we can see that the code was found in three
+guesses instead of four.  Wonderful!
+
+```q
+q).mm.summary each .mm.game[a;G;C;g] "PEACE"
+n    guess   score  
+--------------------
+2309 "SOARE" "  G G"
+28   "PLAGE" "G G G"
+1    "PEACE" "GGGGG"
+```
+
+But running the game across all codes reveals how the extra constraint
+adds to the difficulty of the game. In one case, the algorithm can't
+even win in 6 guesses -- the maximum allowed on the Wordle site -- and
+the average number of guesses per game has jumped to 4.614985.
+
+```q
+q)show h:.mm.hist (count .mm.game[.mm.onestep[`.mm.maxent];G;C;"SOARE"]::) peach C
+2| 3
+3| 86
+4| 822
+5| 1285
+6| 112
+7| 1
+q)value[h] wavg key h
+4.614985
 ```
