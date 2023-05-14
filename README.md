@@ -12,7 +12,9 @@ is chosen as well as an example of playing the game interactively.
 Running with multiple secondary threads `-s 4` allows the
 computationally-heavy search for optimal guesses to run in parallel.
 
-`q play.q -s 4`
+```sh
+$ q play.q -s 4
+```
 
 ## Wordle
 
